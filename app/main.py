@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.schemas.user import UserCreate
-from app.services.user_service import create_user, get_all_users, get_user_by_id,update_user
+from app.services.user_service import create_user, get_all_users, get_user_by_id,update_user,delete_user
 
 from app.config import APP_NAME
 
@@ -67,4 +67,17 @@ def update_user_details(user_id: int, user: UserCreate):
         "id": updated_user.id,
         "name": updated_user.name,
         "email": updated_user.email
+    }
+@app.delete("/users/{user_id}")
+def remove_user(user_id: int):
+    deleted_user = delete_user(user_id)
+
+    if deleted_user is None:
+        return {"message": "User not found"}
+
+    return {
+        "message": "User deleted successfully",
+        "id": deleted_user.id,
+        "name": deleted_user.name,
+        "email": deleted_user.email
     }

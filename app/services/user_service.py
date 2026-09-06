@@ -33,3 +33,10 @@ def update_user(user_id: int, name: str, email: str):
             return user
 
     return None
+def delete_user(user_id: int):
+    for user in users:
+        if user.id == user_id:
+            users.remove(user)
+            return user
+
+    return None

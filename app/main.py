@@ -1,3 +1,5 @@
+from app.schemas.task import TaskCreate,TaskUpdate 
+from app.services.task_service import create_task,get_all_tasks,get_task_by_id,update_task,delete_task
 from fastapi import FastAPI
 from app.schemas.user import UserCreate
 from app.services.user_service import create_user, get_all_users, get_user_by_id,update_user,delete_user
@@ -80,4 +82,80 @@ def remove_user(user_id: int):
         "id": deleted_user.id,
         "name": deleted_user.name,
         "email": deleted_user.email
+    }
+
+@app.post("/tasks")
+def add_task(task: TaskCreate):
+    new_task = create_task(
+        title=task.title,
+        description=task.description,
+        status=task.status,
+        user_id=task.user_id
+    )
+
+    return {
+        "id": new_task.id,
+        "title": new_task.title,
+        "description": new_task.description,
+        "status": new_task.status,
+        "user_id": new_task.user_id
+    }
+@app.get("/tasks")
+def get_tasks():
+    all_tasks = get_all_tasks()
+
+    return [
+        {
+            "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "status": task.status,
+            "user_id": task.user_id
+        }
+        for task in all_tasks
+    ]
+@app.get("/tasks/{task_id}")
+def get_task(task_id: int):
+    task = get_task_by_id(task_id)
+
+    if task is None:
+        return {"message": "Task not found"}
+
+    return {
+        "id": task.id,
+        "title": task.title,
+        "description": task.description,
+        "status": task.status,
+        "user_id": task.user_id
+    }
+@app.put("/tasks/{task_id}")
+def edit_task(task_id: int, task: TaskUpdate):
+    updated_task = update_task(
+        task_id=task_id,
+        title=task.title,
+        description=task.description,
+        status=task.status,
+        user_id=task.user_id
+    )
+
+    if updated_task is None:
+        return {"message": "Task not found"}
+
+    return {
+        "id": updated_task.id,
+        "title": updated_task.title,
+        "description": updated_task.description,
+        "status": updated_task.status,
+        "user_id": updated_task.user_id
+    }
+@app.delete("/tasks/{task_id}")
+def remove_task(task_id: int):
+    deleted_task = delete_task(task_id)
+
+    if deleted_task is None:
+        return {"message": "Task not found"}
+
+    return {
+        "message": "Task deleted successfully",
+        "id": deleted_task.id
     }

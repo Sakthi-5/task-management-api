@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.schemas.user import UserCreate
-from app.services.user_service import create_user, get_all_users
+from app.services.user_service import create_user, get_all_users, get_user_by_id
 from app.config import APP_NAME
 
 app = FastAPI(title=APP_NAME)
@@ -37,3 +37,17 @@ def get_users():
         }
         for user in all_users
     ]
+
+
+@app.get("/users/{user_id}")
+def get_user(user_id: int):
+    user = get_user_by_id(user_id)
+
+    if user is None:
+        return {"message": "User not found"}
+
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email
+    }

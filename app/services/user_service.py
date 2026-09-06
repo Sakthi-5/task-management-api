@@ -24,3 +24,12 @@ def get_user_by_id(user_id: int):
             return user
 
     return None
+
+def update_user(user_id: int, name: str, email: str):
+    for user in users:
+        if user.id == user_id:
+            user.name = name
+            user.email = email
+            return user
+
+    return None

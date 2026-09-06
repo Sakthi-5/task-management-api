@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.schemas.user import UserCreate
-from app.services.user_service import create_user, get_all_users, get_user_by_id
+from app.services.user_service import create_user, get_all_users, get_user_by_id,update_user
+
 from app.config import APP_NAME
 
 app = FastAPI(title=APP_NAME)
@@ -50,4 +51,20 @@ def get_user(user_id: int):
         "id": user.id,
         "name": user.name,
         "email": user.email
+    }
+@app.put("/users/{user_id}")
+def update_user_details(user_id: int, user: UserCreate):
+    updated_user = update_user(
+        user_id=user_id,
+        name=user.name,
+        email=user.email
+    )
+
+    if updated_user is None:
+        return {"message": "User not found"}
+
+    return {
+        "id": updated_user.id,
+        "name": updated_user.name,
+        "email": updated_user.email
     }

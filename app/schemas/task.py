@@ -7,7 +7,6 @@ class TaskCreate(BaseModel):
     title: str
     description: str
     status: str
-    user_id: int
 
     @field_validator("title", "description")
     @classmethod
@@ -28,7 +27,6 @@ class TaskUpdate(BaseModel):
     title: str
     description: str
     status: str
-    user_id: int
 
     @field_validator("title", "description")
     @classmethod

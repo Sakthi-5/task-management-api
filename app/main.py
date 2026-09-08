@@ -1,6 +1,6 @@
 from app.schemas.task import TaskCreate,TaskUpdate 
-from app.services.task_service import create_task,get_all_tasks,get_task_by_id,update_task,delete_task
-from fastapi import FastAPI
+from app.services.task_service import create_task,get_all_tasks,get_task_by_id,get_tasks_by_user_id,update_task,delete_task
+from fastapi import FastAPI, HTTPException
 from app.schemas.user import UserCreate
 from app.services.user_service import create_user, get_all_users, get_user_by_id,update_user,delete_user
 
@@ -93,6 +93,9 @@ def add_task(task: TaskCreate):
         user_id=task.user_id
     )
 
+    if new_task == "user_not_found":
+        raise HTTPException(status_code=404, detail="User not found")
+
     return {
         "id": new_task.id,
         "title": new_task.title,
@@ -118,8 +121,11 @@ def get_tasks():
 def get_task(task_id: int):
     task = get_task_by_id(task_id)
 
-    if task is None:
-        return {"message": "Task not found"}
+    if task == "task_not_found":
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
 
     return {
         "id": task.id,
@@ -128,6 +134,45 @@ def get_task(task_id: int):
         "status": task.status,
         "user_id": task.user_id
     }
+@app.get("/tasks/{task_id}")
+def get_task(task_id: int):
+    task = get_task_by_id(task_id)
+
+    if task == "task_not_found":
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    return {
+        "id": task.id,
+        "title": task.title,
+        "description": task.description,
+        "status": task.status,
+        "user_id": task.user_id
+    }
+@app.get("/users/{user_id}/tasks")
+def get_user_tasks(user_id: int):
+
+    user_tasks = get_tasks_by_user_id(user_id)
+
+    if user_tasks == "user_not_found":
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    return [
+        {
+            "sequence": index + 1,
+            "task_id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "status": task.status,
+            "user_id": task.user_id
+        }
+        for index, task in enumerate(user_tasks)
+    ]
 @app.put("/tasks/{task_id}")
 def edit_task(task_id: int, task: TaskUpdate):
     updated_task = update_task(
@@ -138,8 +183,17 @@ def edit_task(task_id: int, task: TaskUpdate):
         user_id=task.user_id
     )
 
-    if updated_task is None:
-        return {"message": "Task not found"}
+    if updated_task == "user_not_found":
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    if updated_task == "task_not_found":
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
 
     return {
         "id": updated_task.id,
